@@ -1,40 +1,61 @@
 <template>
-   <div>
-    <div class="header clearfix">
-        <nav>
-            <ul class="nav nav-pills pull-right">
-                <li role="presentation">
-                    <a href="#" @click="currentView='managePosts'">Manage Posts</a>
-                </li>
-                <li role="presentation">
-                    <a href="#" @click="currentView='createPost'">Create Post</a>
-                </li>
-            </ul>
-        </nav>
-        <h3 class="text-muted">Admin Panel</h3>
-    </div>
-    
     <div class="container">
-        <keep-alive>
-            <component :is="currentView"></component>
-        </keep-alive>
+        <div class="row">
+            <div class="col-xs-12 header-text">
+                <h1>Github Markdown Preview</h1>
+                <h4>It's fun</h4>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-xs-12 col-md-6">
+                <textarea id="editor" class="form-control" v-model="rawMarkdown"></textarea>
+            </div>
+            <div id="preview" class="col-xs-12 col-md-6">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <article class="markdown-body">
+                            {{renderedMarkdown}}
+                        </article>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-xs-12">
+                <button type="button" class="btn btn-primary pull-right" @click="renderPreview">
+                    Preview
+                </button>
+            </div>
+        </div>
     </div>
- </div>
 </template>
 
 <script>
-    import ManagePosts from './components/Manage-Posts.vue'
-    import CreatePost from './components/Create-Post.vue'
+
     export default {
        data(){
            return {
-               currentView: 'managePosts'
+               rawMarkdown: '',
+               renderedMarkdown: ''
            }
+           
        },
-       components: {
-           managePosts: ManagePosts,
-           createPost: CreatePost
+       methods: {
+           renderPreview(){
+               this.$http({
+                   url: 'https://api.github.com/markdown',
+                   method: 'POST',
+                   data: {text: this.rawMarkdown, mode: 'markdown'}
+               }).then(function(response){
+                   this.renderedMarkdown = response.data;
+               }, function(response){
+                   console.log(response.data);
+               });
+           }
        }
+
     }
 </script>
 
